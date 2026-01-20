@@ -15,7 +15,7 @@ const config = ({
   use: {
     baseURL: 'https://www.saucedemo.com/',
     browserName: 'chromium',
-    headless: false,
+    headless: true,
     trace: 'on-first-retry',
   },
 });
