@@ -1,4 +1,4 @@
-# Playwright SwagLab Heist 🕵️‍♂️🎭
+# Playwright SwagLab Heist 
 
 A robust end-to-end testing suite for [SauceDemo (Swag Labs)](https://www.saucedemo.com/) built with **Playwright**. This project demonstrates automated testing of common e-commerce flows, including authentication and error handling.
 
@@ -22,12 +22,12 @@ Playwright_SwagLab_Heist/
 └── README.md            # You are here!
 ```
 
-## 📋 Prerequisites
+##  Prerequisites
 
 - **Node.js**: v18 or higher (LTS recommended)
 - **npm**: v8 or higher
 
-## ⚙️ Installation
+##  Installation
 
 1. **Clone the repository**:
    ```bash
