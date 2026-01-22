@@ -25,10 +25,11 @@ class LoginPage {
           while (attempts < 3) {
                await this.loginButton.click();
                try {
-                    // Wait for either the button to be hidden (success) OR an error to appear (failure)
+                    // Sauce Labs performance glitch user takes 5 seconds, 
+                    // so we increase the wait to 6 seconds to avoid unnecessary retries.
                     await Promise.race([
-                         this.loginButton.waitFor({ state: 'hidden', timeout: 2000 }),
-                         this.errorMessage.waitFor({ state: 'visible', timeout: 2000 })
+                         this.loginButton.waitFor({ state: 'hidden', timeout: 6000 }),
+                         this.errorMessage.waitFor({ state: 'visible', timeout: 6000 })
                     ]);
                     break;
                } catch (e) {
