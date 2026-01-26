@@ -158,6 +158,47 @@ test.describe("Login Tests", () => {
     await expect(loginPage.errorMessage).toContainText('Epic sadface: Password is required');
   });
 
+  //TC-LP-016
+  test("Verify login without entering password for locked out user", async () => {
+    await loginPage.login("locked_out_user", "");
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Password is required');
+  });
+
+  //TC-LP-017 
+  test("Verify login without entering password for problem_user", async () => {
+    await loginPage.login("problem_user", "");
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Password is required');
+  });
+
+  //TC-LP-018 
+  test("Verify login without entering password for performance_glitch_user", async () => {
+    await loginPage.login("performance_glitch_user", "");
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Password is required');
+  });
+
+  //TC-LP-019
+  test("Verify login without entering password for error_user", async () => {
+    await loginPage.login("error_user", "");
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Password is required');
+  });
+
+  //TC-LP-020
+  test("Verify login without entering password for visual_user", async () => {
+    await loginPage.login("visual_user", "");
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Password is required');
+  });
+
+  //TC-LP-021
+  test("Verify case sensitivity of login for standard_user", async () => {
+    await loginPage.login("STANDARD_USER", "");
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Username is required');
+  });
+
+
+
+
+
+
 
 
 
