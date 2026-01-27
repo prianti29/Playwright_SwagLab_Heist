@@ -4,6 +4,7 @@
  */
 const config = ({
   testDir: './tests',
+  snapshotDir: './snapshots',
   timeout: 40 * 1000,
 
   expect: {

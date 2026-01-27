@@ -35,8 +35,8 @@ test.describe("Login Tests", () => {
   //TC-LP-005
   test("Verify login and UI issues with problem_user", async ({ page }) => {
     // Sauce Labs intentionally added bugs to 'problem_user'.
-    // We use test.fail() to acknowledge these known bugs.
-    test.fail(true, 'problem_user has known bugs: broken images and duplicated assets.');
+    // This user is known to have duplicate images, so the unique image check will fail.
+    test.fail(true, 'problem_user has known bugs: duplicated assets.');
     await loginPage.login("problem_user", "secret_sauce");
     await inventoryPage.verifyHeaderLogo();
 
@@ -77,8 +77,8 @@ test.describe("Login Tests", () => {
       }
     });
 
-    // Mark as expected to fail because the system is intentionally buggy for this user
-    test.fail(true, 'error_user results in unexpected behavior (buggy interactions and console errors).');
+    // error_user is known to trigger console errors. 
+    // We verify these errors via the console event listener and expect assertion below.
 
     await loginPage.login("error_user", "secret_sauce");
     await inventoryPage.verifyHeaderLogo();
@@ -102,8 +102,8 @@ test.describe("Login Tests", () => {
     await loginPage.login("visual_user", "secret_sauce");
     await inventoryPage.verifyHeaderLogo();
 
-    // 1. Mark as expected failure due to visual distortions
-    test.fail(true, 'visual_user triggers distorted UI elements (CSS glitches).');
+    // visual_user has distorted UI elements. 
+    // We verify this via Visual Regression Testing (Screenshots).
 
     // 2. Capture and compare screenshots. 
     // Note: You must run `npx playwright test --update-snapshots` the first time to create the baseline.
@@ -190,9 +190,40 @@ test.describe("Login Tests", () => {
 
   //TC-LP-021
   test("Verify case sensitivity of login for standard_user", async () => {
-    await loginPage.login("STANDARD_USER", "");
-    await expect(loginPage.errorMessage).toContainText('Epic sadface: Username is required');
+    await loginPage.login("STANDARD_USER", "secret_sauce");
+    await expect(loginPage.errorMessage).toContainText('Username and password do not match any user in this service');
   });
+
+  //TC-LP-022
+  test("Verify case sensitivity of login for locked_out_user", async () => {
+    await loginPage.login("LOCKED_OUT_USER", "secret_sauce");
+    await expect(loginPage.errorMessage).toContainText('Username and password do not match any user in this service');
+  });
+
+  //TC-LP-023
+  test("Verify case sensitivity of login for Problem User", async () => {
+    await loginPage.login("PROBLEM_USER", "secret_sauce");
+    await expect(loginPage.errorMessage).toContainText('Username and password do not match any user in this service');
+  });
+
+  //TC-LP-024
+  test("Verify case sensitivity of login for Performance Glitch User", async () => {
+    await loginPage.login("PERFORMANCE_GLITCH_USER", "secret_sauce");
+    await expect(loginPage.errorMessage).toContainText('Username and password do not match any user in this service');
+  });
+
+  //TC-LP-025
+  test("Verify case sensitivity of login for Error User", async () => {
+    await loginPage.login("ERROR_USER", "secret_sauce");
+    await expect(loginPage.errorMessage).toContainText('Username and password do not match any user in this service');
+  });
+
+  //TC-LP-026
+  test("Verify case sensitivity of login for Visual User", async () => {
+    await loginPage.login("VISUAL_USER", "secret_sauce");
+    await expect(loginPage.errorMessage).toContainText('Username and password do not match any user in this service');
+  });
+
 
 
 
