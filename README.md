@@ -78,11 +78,18 @@ The suite currently implements 26 test cases (**TC-LP-001** to **TC-LP-026**) co
   - `error_user`: Monitors and detects browser console errors during navigation.
   - `visual_user`: Uses visual regression to detect UI distortions.
 
-## CI/CD
+##  Troubleshooting
 
-This project uses **GitHub Actions** (`playwright.yml`) to:
-- Trigger test runs on every `push` and `pull_request` to `main`.
-- Automatically generate and upload HTML reports as artifacts.
+### Cross-Platform Snapshot Mismatch
+If tests fail in GitHub Actions with a message like `A snapshot doesn't exist at ...-linux.png`, it's because Playwright requires different baseline images for different operating systems (Windows vs Linux).
+
+**How to fix:**
+1. **Download from CI**: Download the `playwright-report` from the failed GitHub Action run, extract the "Actual" images, and commit them as `-linux.png` in your snapshots folder.
+2. **Use Docker**: If you have Docker installed, run:
+   ```bash
+   npm run test:docker -- --update-snapshots
+   ```
+   This will generate Linux-compatible snapshots on your Windows machine.
 
 ---
 *Happy Testing.*

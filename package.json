@@ -8,7 +8,8 @@
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
-    "report": "playwright show-report"
+    "report": "playwright show-report",
+    "test:docker": "docker run --rm -v ${PWD}:/work/ -w /work/ mcr.microsoft.com/playwright:v1.50.0-noble npx playwright test"
   },
   "keywords": [],
   "author": "",
