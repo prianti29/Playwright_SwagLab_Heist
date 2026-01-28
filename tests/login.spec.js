@@ -105,8 +105,7 @@ test.describe("Login Tests", () => {
     // visual_user has distorted UI elements. 
     // We verify this via Visual Regression Testing (Screenshots).
 
-    // 2. Capture and compare screenshots. 
-    // Note: You must run `npx playwright test --update-snapshots` the first time to create the baseline.
+    // Capture and compare screenshots
     await expect(page).toHaveScreenshot('inventory-visual-user.png', {
       maxDiffPixelRatio: 0.01,
       threshold: 0.1
@@ -223,6 +222,120 @@ test.describe("Login Tests", () => {
     await loginPage.login("VISUAL_USER", "secret_sauce");
     await expect(loginPage.errorMessage).toContainText('Username and password do not match any user in this service');
   });
+
+  //TC-LP-027
+  test("Verify account lockout on multiple failed attempts for standard user", async () => {
+    const maxAttempts = 10;
+    for (let i = 0; i < maxAttempts; i++) {
+      await loginPage.login("standard_user", "wrong_password");
+
+      if (i < maxAttempts - 1) {
+        // Assert generic error for initial failed attempts
+        await expect(loginPage.errorMessage).toContainText('Username and password do not match');
+      }
+    }
+    // Final assertion for the specific lockout message
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Sorry, your account has been locked due to multiple failed login attempts. Please try again later.');
+  });
+
+  //TC-LP-028
+  test("Verify account lockout on multiple failed attempts for lockedout user", async () => {
+    const maxAttempts = 10;
+    for (let i = 0; i < maxAttempts; i++) {
+      await loginPage.login("locked_out_user", "wrong_password");
+
+      if (i < maxAttempts - 1) {
+        // Assert generic error for initial failed attempts
+        await expect(loginPage.errorMessage).toContainText('Username and password do not match');
+      }
+    }
+    // Final assertion for the specific lockout message
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Sorry, your account has been locked due to multiple failed login attempts. Please try again later.');
+  });
+
+  //TC-LP-029
+  test("Verify account lockout on multiple failed attempts for problem user", async () => {
+    const maxAttempts = 10;
+    for (let i = 0; i < maxAttempts; i++) {
+      await loginPage.login("problem_user", "wrong_password");
+
+      if (i < maxAttempts - 1) {
+        // Assert generic error for initial failed attempts
+        await expect(loginPage.errorMessage).toContainText('Username and password do not match');
+      }
+    }
+    // Final assertion for the specific lockout message
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Sorry, your account has been locked due to multiple failed login attempts. Please try again later.');
+  });
+
+  //TC-LP-030 
+  test("Verify account lockout on multiple failed attempts for performance glitch user", async () => {
+    const maxAttempts = 10;
+    for (let i = 0; i < maxAttempts; i++) {
+      await loginPage.login("performance_glitch_user", "wrong_password");
+
+      if (i < maxAttempts - 1) {
+        // Assert generic error for initial failed attempts
+        await expect(loginPage.errorMessage).toContainText('Username and password do not match');
+      }
+    }
+    // Final assertion for the specific lockout message
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Sorry, your account has been locked due to multiple failed login attempts. Please try again later.');
+  });
+
+  //TC-LP-031 
+  test("Verify account lockout on multiple failed attempts for error user", async () => {
+    const maxAttempts = 10;
+    for (let i = 0; i < maxAttempts; i++) {
+      await loginPage.login("error_user", "wrong_password");
+
+      if (i < maxAttempts - 1) {
+        // Assert generic error for initial failed attempts
+        await expect(loginPage.errorMessage).toContainText('Username and password do not match');
+      }
+    }
+    // Final assertion for the specific lockout message
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Sorry, your account has been locked due to multiple failed login attempts. Please try again later.');
+  });
+
+  //TC-LP-032
+  test("Verify account lockout on multiple failed attempts visual user", async () => {
+    const maxAttempts = 10;
+    for (let i = 0; i < maxAttempts; i++) {
+      await loginPage.login("visual_user", "wrong_password");
+
+      if (i < maxAttempts - 1) {
+        // Assert generic error for initial failed attempts
+        await expect(loginPage.errorMessage).toContainText('Username and password do not match');
+      }
+    }
+    // Final assertion for the specific lockout message
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Sorry, your account has been locked due to multiple failed login attempts. Please try again later.');
+  });
+
+  //TC-LP-033
+  test("Verify login across multiple browsers", async ({ playwright }) => {
+    const browserTypes = ['chromium', 'firefox', 'webkit'];
+    for (const browserType of browserTypes) {
+      console.log(`Verifying login on: ${browserType}`);
+      const browser = await playwright[browserType].launch();
+      const context = await browser.newContext();
+      const page = await context.newPage();
+
+      const multiLoginPage = new LoginPage(page);
+      const multiInventoryPage = new InventoryPage(page);
+
+      await multiLoginPage.goto();
+      await multiLoginPage.login("standard_user", "secret_sauce");
+      await multiInventoryPage.verifyHeaderLogo();
+
+      await browser.close();
+    }
+  });
+
+
+
+
 
 
 
