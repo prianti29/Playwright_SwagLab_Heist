@@ -130,7 +130,7 @@ test.describe("Login Tests", () => {
   //TC-LP-011
   test("Verify login with incorrect password with performance glitch user", async () => {
     await loginPage.login("performance_glitch_user", "invalid_password");
-    await expect(loginPage.errorMessage).toContainText('Epic sadface: Username and password do not match');
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Username an d password do not match');
   });
 
   //TC-LP-012
@@ -315,23 +315,137 @@ test.describe("Login Tests", () => {
 
   //TC-LP-033
   test("Verify login across multiple browsers", async ({ playwright }) => {
+    // Define the list of browsers to be tested. 
+    // This allows verifying cross-browser compatibility within a single test case.
     const browserTypes = ['chromium', 'firefox', 'webkit'];
+
     for (const browserType of browserTypes) {
-      console.log(`Verifying login on: ${browserType}`);
+      console.log(`Executing TC-LP-033 on: ${browserType}`);
+
+      // Manually launch browser instance for the specific type
       const browser = await playwright[browserType].launch();
-      const context = await browser.newContext();
-      const page = await context.newPage();
+      // Create a fresh page for the test
+      const page = await browser.newPage();
 
-      const multiLoginPage = new LoginPage(page);
-      const multiInventoryPage = new InventoryPage(page);
+      // Initialize Page Object Models using the direct page instance
+      const loginPage = new LoginPage(page);
+      const inventoryPage = new InventoryPage(page);
 
-      await multiLoginPage.goto();
-      await multiLoginPage.login("standard_user", "secret_sauce");
-      await multiInventoryPage.verifyHeaderLogo();
+      // Perform test steps
+      await loginPage.goto();
+      await loginPage.login("standard_user", "secret_sauce");
+      await inventoryPage.verifyHeaderLogo();
+
+      // Ensure browser is closed after each iteration to free up resources
+      await browser.close();
+    }
+  });
+
+
+  //TC-LP-034
+  test("Verify login across multiple browsers for lockedout user", async ({ playwright }) => {
+    // List of browsers to iterate through for cross-browser validation
+    const browserTypes = ['chromium', 'firefox', 'webkit'];
+
+    for (const browserType of browserTypes) {
+      console.log(`Executing TC-LP-034 on: ${browserType}`);
+
+      // Manually launch the specific browser type (Chromium, Firefox, or Webkit)
+      const browser = await playwright[browserType].launch();
+      const page = await browser.newPage();
+
+      // Create local instance of LoginPage for the current browser context
+      const loginPage = new LoginPage(page);
+
+      // Navigate and attempt login with known locked_out_user
+      await loginPage.goto();
+      await loginPage.login("locked_out_user", "secret_sauce");
+
+      // Assert that the lockout error message is displayed correctly on this browser
+      await expect(loginPage.errorMessage).toContainText('Epic sadface: Sorry, this user has been locked out.');
+
+      // Close instance to prevent memory leaks or hanging processes
+      await browser.close();
+    }
+  });
+
+
+  //TC-LP-035
+  test("Verify login across multiple browsers for problem user", async ({ playwright }) => {
+    // problem_user is known to have UI bugs like broken images and duplicate assets.
+    // We expect the image validation checks to fail on this user.
+    test.fail(true, 'problem_user has known bugs: broken images and duplicated assets.');
+
+    const browserTypes = ['chromium', 'firefox', 'webkit'];
+
+    for (const browserType of browserTypes) {
+      console.log(`Executing TC-LP-035 on: ${browserType}`);
+
+      const browser = await playwright[browserType].launch();
+      const page = await browser.newPage();
+
+      const loginPage = new LoginPage(page);
+      const inventoryPage = new InventoryPage(page);
+
+      // Perform Login
+      await loginPage.goto();
+      await loginPage.login("problem_user", "secret_sauce");
+
+      // Verify Successful Landing
+      await inventoryPage.verifyHeaderLogo();
+
+      // Detect UI Bugs (These are expected to fail for problem_user)
+      console.log(`Checking for UI bugs in ${browserType}...`);
+
+      // Check for broken images (src returning 404 or naturalWidth 0)
+      await inventoryPage.verifyNoBrokenImages();
+
+      // Check for duplicate product images
+      await inventoryPage.verifyProductImagesAreUnique();
 
       await browser.close();
     }
   });
+
+  //TC-LP-036
+  test("Verify login across multiple browsers for performance glitch user", async ({ playwright }) => {
+    const browserTypes = ['chromium', 'firefox', 'webkit'];
+    for (const browserType of browserTypes) {
+      console.log(`Executing TC-LP-034 on: ${browserType}`);
+
+      const browser = await playwright[browserType].launch();
+      const page = await browser.newPage();
+      const startTime = performance.now();
+
+      // Create local instance of LoginPage for the current browser context
+      const loginPage = new LoginPage(page);
+      const inventoryPage = new InventoryPage(page);
+
+      // Navigate and attempt login with performance_glitch_user
+      await loginPage.goto();
+      await loginPage.login("performance_glitch_user", "secret_sauce");
+
+      // Verify Successful Landing
+      await inventoryPage.verifyHeaderLogo();
+
+      // Get end time and calculate duration
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+      // Assert that the delay was significant (greater than 3 seconds)
+      console.log(`Login duration for performance_glitch_user: ${duration.toFixed(2)}ms`);
+      expect(duration).toBeGreaterThan(3000);
+
+      await inventoryPage.logout();
+      await loginPage.verifyLoginPageVisible();
+
+      // Close instance to prevent memory leaks or hanging processes
+      await browser.close();
+    }
+  });
+
+
+
+
 
 
 

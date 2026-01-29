@@ -1,7 +1,3 @@
-
-/**
- * @see https://playwright.dev/docs/test-configuration
- */
 const config = ({
   testDir: './tests',
   snapshotDir: './snapshots',
