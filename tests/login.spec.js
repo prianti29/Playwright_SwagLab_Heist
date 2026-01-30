@@ -442,6 +442,80 @@ test.describe("Login Tests", () => {
       await browser.close();
     }
   });
+  //TC-LP-037
+  test("Verify login across multiple browsers for error user", async ({ playwright }) => {
+    const browserTypes = ['chromium', 'firefox', 'webkit'];
+    for (const browserType of browserTypes) {
+      console.log(`Executing TC-LP-037 on: ${browserType}`);
+
+      const browser = await playwright[browserType].launch();
+      const page = await browser.newPage();
+
+      // Track console errors
+      const consoleErrors = [];
+      page.on('console', msg => {
+        if (msg.type() === 'error') {
+          consoleErrors.push(msg.text());
+          console.log(`Detected console error on ${browserType}: ${msg.text()}`);
+        }
+      });
+
+      const loginPage = new LoginPage(page);
+      const inventoryPage = new InventoryPage(page);
+
+      // Perform Login
+      await loginPage.goto();
+      await loginPage.login("error_user", "secret_sauce");
+
+      // Verify Successful Landing
+      await inventoryPage.verifyHeaderLogo();
+
+      // Attempt Logout
+      await inventoryPage.logout();
+      await loginPage.verifyLoginPageVisible();
+
+      // For error_user, we expect errors to be triggered. 
+      console.log(`Total console errors on ${browserType}: ${consoleErrors.length}`);
+      if (browserType === 'chromium') {
+        expect(consoleErrors.length, `Should have detected console errors for error_user on ${browserType}`).toBeGreaterThan(0);
+      }
+
+      await browser.close();
+    }
+  });
+
+  //TC-LP-038
+  test("Verify login across multiple browsers for visual user", async ({ playwright }) => {
+    const browserTypes = ['chromium', 'firefox', 'webkit'];
+
+    for (const browserType of browserTypes) {
+      console.log(`Executing TC-LP-038 on: ${browserType}`);
+
+      const browser = await playwright[browserType].launch();
+      const page = await browser.newPage();
+
+      const loginPage = new LoginPage(page);
+      const inventoryPage = new InventoryPage(page);
+
+      // Perform Login
+      await loginPage.goto();
+      await loginPage.login("visual_user", "secret_sauce");
+
+      // Verify Successful Landing
+      await inventoryPage.verifyHeaderLogo();
+
+      // Visual Regression Check
+      await expect(page).toHaveScreenshot(`inventory-visual-user-${browserType}.png`, {
+        maxDiffPixelRatio: 0.05,
+        threshold: 0.2
+      });
+
+      await inventoryPage.logout();
+      await loginPage.verifyLoginPageVisible();
+
+      await browser.close();
+    }
+  });
 
 
 
