@@ -130,7 +130,7 @@ test.describe("Login Tests", () => {
   //TC-LP-011
   test("Verify login with incorrect password with performance glitch user", async () => {
     await loginPage.login("performance_glitch_user", "invalid_password");
-    await expect(loginPage.errorMessage).toContainText('Epic sadface: Username an d password do not match');
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Username and password do not match');
   });
 
   //TC-LP-012
@@ -509,6 +509,28 @@ test.describe("Login Tests", () => {
         maxDiffPixelRatio: 0.05,
         threshold: 0.2
       });
+
+      await inventoryPage.logout();
+      await loginPage.verifyLoginPageVisible();
+
+      await browser.close();
+    }
+  });
+
+  //TC-LP-038
+  test("Verify login across multiple browsers for standard user", async ({ playwright }) => {
+    const browserTypes = ['chromium', 'firefox', 'webkit'];
+
+    for (const browserType of browserTypes) {
+
+      const browser = await playwright[browserType].launch();
+      const page = await browser.newPage();
+
+      const loginPage = new LoginPage(page);
+      const inventoryPage = new InventoryPage(page);
+
+      await loginPage.goto();
+      await loginPage.login("standard_user", "secret_sauce");
 
       await inventoryPage.logout();
       await loginPage.verifyLoginPageVisible();
