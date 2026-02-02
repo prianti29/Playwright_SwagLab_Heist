@@ -314,7 +314,7 @@ test.describe("Login Tests", () => {
   });
 
   //TC-LP-033
-  test("Verify login across multiple browsers", async ({ playwright }) => {
+  test("Verify login across multiple browsers for standard user", async ({ playwright }) => {
     // Define the list of browsers to be tested. 
     // This allows verifying cross-browser compatibility within a single test case.
     const browserTypes = ['chromium', 'firefox', 'webkit'];
@@ -517,28 +517,109 @@ test.describe("Login Tests", () => {
     }
   });
 
+
   //TC-LP-038
-  test("Verify login across multiple browsers for standard user", async ({ playwright }) => {
-    const browserTypes = ['chromium', 'firefox', 'webkit'];
+  const standardUserDevices = ['iPhone 13', 'Pixel 5', 'Galaxy S9+'];
+  for (const deviceName of standardUserDevices) {
+    test(`Verify login on mobile devices for standard user on ${deviceName}`, async ({ playwright }) => {
+      console.log(`Executing TC-LP-038 on: ${deviceName}`);
 
-    for (const browserType of browserTypes) {
+      const device = playwright.devices[deviceName];
+      const browserName = device.defaultBrowserType;
 
-      const browser = await playwright[browserType].launch();
-      const page = await browser.newPage();
+      // Manually launch browser and create context with mobile emulation
+      const browser = await playwright[browserName].launch();
+      const context = await browser.newContext({
+        ...device,
+      });
+      const page = await context.newPage();
 
       const loginPage = new LoginPage(page);
       const inventoryPage = new InventoryPage(page);
 
       await loginPage.goto();
       await loginPage.login("standard_user", "secret_sauce");
+      await inventoryPage.verifyHeaderLogo();
 
+      // Verify logout works on mobile view
       await inventoryPage.logout();
       await loginPage.verifyLoginPageVisible();
 
       await browser.close();
-    }
-  });
+    });
+  }
 
+  //TC-LP-039
+  const lockedOutUserDevices = ['iPhone 13', 'Pixel 5', 'Galaxy S9+'];
+  for (const deviceName of lockedOutUserDevices) {
+    test(`Verify login on mobile devices for lockedout user on ${deviceName}`, async ({ playwright }) => {
+      console.log(`Executing TC-LP-039 on: ${deviceName}`);
+
+      const device = playwright.devices[deviceName];
+      const browserName = device.defaultBrowserType;
+
+      // Manually launch browser and create context with mobile emulation
+      const browser = await playwright[browserName].launch();
+      const context = await browser.newContext({
+        ...device,
+      });
+      const page = await context.newPage();
+
+      const loginPage = new LoginPage(page);
+
+      await loginPage.goto();
+      await loginPage.login("locked_out_user", "secret_sauce");
+
+      // Assert that the lockout error message is displayed correctly on this browser
+      await expect(loginPage.errorMessage).toContainText('Epic sadface: Sorry, this user has been locked out.');
+
+      // Close instance to prevent memory leaks or hanging processes
+      await browser.close();
+    });
+  }
+
+  //TC-LP-040
+  const problemUserDevices = ['iPhone 13', 'Pixel 5', 'Galaxy S9+'];
+  for (const deviceName of problemUserDevices) {
+    test(`Verify login on mobile devices for problem user on ${deviceName}`, async ({ playwright }) => {
+      // problem_user is known to have UI bugs like broken images and duplicate assets.
+      // We expect the image validation checks to fail on this user.
+      test.fail(true, 'problem_user has known bugs: broken images and duplicated assets.');
+
+      console.log(`Executing TC-LP-040 on: ${deviceName}`);
+
+      const device = playwright.devices[deviceName];
+      const browserName = device.defaultBrowserType;
+
+      // Manually launch browser and create context with mobile emulation
+      const browser = await playwright[browserName].launch();
+      const context = await browser.newContext({
+        ...device,
+      });
+      const page = await context.newPage();
+
+      const loginPage = new LoginPage(page);
+      const inventoryPage = new InventoryPage(page);
+
+      // Perform Login
+      await loginPage.goto();
+      await loginPage.login("problem_user", "secret_sauce");
+
+      // Verify Successful Landing
+      await inventoryPage.verifyHeaderLogo();
+
+      // Detect UI Bugs (These are expected to fail for problem_user)
+      console.log(`Checking for UI bugs in ${deviceName}...`);
+
+      // Check for broken images (src returning 404 or naturalWidth 0)
+      await inventoryPage.verifyNoBrokenImages();
+
+      // Check for duplicate product images
+      await inventoryPage.verifyProductImagesAreUnique();
+
+      await browser.close();
+    });
+  }
 
 
 
