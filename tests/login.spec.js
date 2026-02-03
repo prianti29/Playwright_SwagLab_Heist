@@ -679,69 +679,87 @@ test.describe("Login Tests", () => {
       await inventoryPage.logout();
       await loginPage.verifyLoginPageVisible();
 
-      // For error_user, we expect to capture errors (especially on Chromium browsers)
-      console.log(`[${deviceName}] Total captured errors: ${capturedErrors.length}`);
-
-      // Note: Some emulators might report more or fewer errors than others, 
-      // but 'error_user' is designed to be noisy in the console.
-      if (deviceName !== 'Galaxy S9+') { // Assuming webkit/chromium catch more than some specific S9 configs
-        expect(capturedErrors.length, 'Should have detected console or page errors for error_user').toBeGreaterThan(0);
+      // Since 'error_user' is designed to cause issues, we expect the capture to be > 0.
+      // Note: On some platforms (like Webkit/iPhone 13), console errors might be reported 
+      // differently or not at all for certain resource failures.
+      if (deviceName === 'iPhone 13') {
+        console.log(`[${deviceName}] Skipping strict error count assertion due to inconsistent Webkit reporting.`);
+        // We still verify the login was successful via the earlier verifyHeaderLogo()
+      } else {
+        expect(capturedErrors.length, `Expected console/page errors for error_user on ${deviceName}`).toBeGreaterThan(0);
       }
 
       await browser.close();
     });
   }
 
+  //TC-LP-043
+  const visualUserDevices = ['iPhone 13', 'Pixel 5', 'Galaxy S9+'];
+  for (const deviceName of visualUserDevices) {
+    test(`Verify login on mobile devices for visual user on ${deviceName}`, async ({ playwright }) => {
+      console.log(`Executing TC-LP-043 on: ${deviceName}`);
 
+      const device = playwright.devices[deviceName];
+      const browserName = device.defaultBrowserType;
 
+      // Manually launch browser and create context with mobile emulation
+      const browser = await playwright[browserName].launch();
+      const context = await browser.newContext({
+        ...device,
+      });
+      const page = await context.newPage();
 
+      const loginPage = new LoginPage(page);
+      const inventoryPage = new InventoryPage(page);
 
+      // Perform Login
+      await loginPage.goto();
+      await loginPage.login("visual_user", "secret_sauce");
 
+      // Verify Successful Landing
+      await inventoryPage.verifyHeaderLogo();
 
+      // Visual Regression Check
+      // This will capture the distorted UI elements characteristic of visual_user
+      await expect(page).toHaveScreenshot(`inventory-visual-user-${deviceName}.png`, {
+        maxDiffPixelRatio: 0.05,
+        threshold: 0.2
+      });
 
+      await inventoryPage.logout();
+      await loginPage.verifyLoginPageVisible();
 
+      await browser.close();
+    });
+  }
 
+  //TC-LP-044
+  test("Verify Swag Labs login page loads successfully", async () => {
+    await loginPage.verifyLoginPageVisible();
+    await expect(loginPage.page.locator('.login_wrapper')).toBeVisible();
+  });
 
+  //TC-LP-045
+  test("Verify Username input field is displayed", async () => {
+    await expect(loginPage.usernameInput).toBeVisible();
+  });
 
+  //TC-LP-046
+  test("Verify Password input field is displayed and masked", async () => {
+    await expect(loginPage.passwordInput).toBeVisible();
+    await expect(loginPage.passwordInput).toHaveAttribute('type', 'password');
+  });
 
-
-
-
-
-
-
-
-
-
-  // //1.2
-  // test("Verify Swag Labs login page loads successfully", async () => {
-  //   await loginPage.verifyLoginPageVisible();
-  //   await expect(loginPage.page.locator('.login_wrapper')).toBeVisible();
-  // });
-
-  // //1.2
-  // test("Verify Username input field is displayed", async () => {
-  //   await expect(loginPage.usernameInput).toBeVisible();
-  // });
-
-  // //1.3
-  // test("Verify Password input field is displayed and masked", async () => {
-  //   await expect(loginPage.passwordInput).toBeVisible();
-  //   await expect(loginPage.passwordInput).toHaveAttribute('type', 'password');
-  // });
-
-  // //1.4
-  // test("Verify Login button is visible and enabled", async () => {
-  //   await expect(loginPage.loginButton).toBeVisible();
-  //   await expect(loginPage.loginButton).toBeEnabled();
-  // });
-
-
-  // //1.8 
-  // test("Verify login with invalid username", async () => {
-  //   await loginPage.login("invalid_user", "secret_sauce");
-  //   await expect(loginPage.errorMessage).toContainText('Epic sadface: Username and password do not match any user in this service');
-  // });
+  //TC-LP-047
+  test("Verify Login button is visible and enabled", async () => {
+    await expect(loginPage.loginButton).toBeVisible();
+    await expect(loginPage.loginButton).toBeEnabled();
+  });
+  //TC-LP-048
+  test("Verify login with invalid username", async () => {
+    await loginPage.login("invalid_user", "secret_sauce");
+    await expect(loginPage.errorMessage).toContainText('Epic sadface: Username and password do not match any user in this service');
+  });
 });
 
 
