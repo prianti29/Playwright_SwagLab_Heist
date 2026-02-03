@@ -98,17 +98,17 @@ class InventoryPage {
           }
      }
 
-     // Verifies that product descriptions contain valid language and no 'code' syntax.
+     // Verifies that product descriptions do not contain code-like syntax (e.g., carry.allTheThings())
      async verifyProductDescriptionContent() {
-          const items = this.page.locator('.inventory_item');
-          const count = await items.count();
+          const productItems = this.page.locator('.inventory_item');
+          const count = await productItems.count();
 
           for (let i = 0; i < count; i++) {
-               const name = await items.nth(i).locator('.inventory_item_name').innerText();
-               const desc = await items.nth(i).locator('.inventory_item_desc').innerText();
+               const name = await productItems.nth(i).locator('.inventory_item_name').innerText();
+               const description = await productItems.nth(i).locator('.inventory_item_desc').innerText();
 
-               // Checking for the known bug: "carry.allTheThings()" in the description
-               expect(desc, `Product "${name}" has a description with invalid syntax: "${desc}"`).not.toContain('carry.allTheThings()');
+               // The "Sauce Labs Backpack" is known to have the "carry.allTheThings()" syntax bug
+               expect(description, `Product "${name}" has invalid syntax in its description: "${description}"`).not.toContain('carry.allTheThings()');
           }
      }
 }

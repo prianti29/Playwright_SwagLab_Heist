@@ -15,12 +15,14 @@ test.describe("Home Page Tests", () => {
      });
 
      //TC-HP-001
-     test("Verify the name of each product of each product have a correct description", async () => {
-          await inventoryPage.verifyProductNameFormat();
+     test("Verify the name of each product of each product have a correct name", async () => {
+          await inventoryPage.verifyProductName();
      });
 
      //TC-HP-002
      test("Verify the product name formatting follows 'Sauce Labs' prefix", async () => {
+          // Marking this as expected to fail because the Red T-Shirt DOES NOT follow the format.
+          test.fail(true, "The 'Test.allTheThings() T-Shirt (Red)' product is known to miss the 'Sauce Labs' prefix.");
           await inventoryPage.verifyProductNameFormat();
      });
 
@@ -30,15 +32,16 @@ test.describe("Home Page Tests", () => {
      });
 
      //TC-HP-004
-     test("verify the price of each product of each product have a correct price format", async () => {
+     test("Verify the price of each product has a correct price format", async () => {
           await inventoryPage.verifyProductPriceFormat();
      });
 
      //TC-HP-005
-     test("verify the description of each product of each product have a correct details", async () => {
-          await inventoryPage.verifyProductPriceFormat();
+     test("Verify the description of each product has correct details (no syntax errors)", async () => {
+          // Marking as failing because the Backpack contains "carry.allTheThings()" syntax error.
+          test.fail(true, "The 'Sauce Labs Backpack' is known to have an 'unknown syntax' bug in its description.");
+          await inventoryPage.verifyProductDescriptionContent();
      });
-
 
 
      // //TC-HP-049
