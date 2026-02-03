@@ -21,7 +21,8 @@ Playwright_SwagLab_Heist/
 │   └── InventoryPage.js  # Product & Navigation actions
 ├── snapshots/            # Baseline images for Visual Regression
 ├── tests/                # E2E Test Scripts
-│   └── login.spec.js     # Comprehensive login & auth tests
+│   ├── login.spec.js     # Comprehensive login & auth tests
+│   └── homePage.spec.js  # Product inventory & UI audit tests
 ├── playwright.config.js  # Global Playwright settings & timeouts
 ├── package.json          # Project dependencies & scripts
 └── README.md             # Project documentation
@@ -68,10 +69,14 @@ Execution commands are managed via `npm` scripts:
 
 ## Test Scenarios
 
-The suite currently implements 26 test cases (**TC-LP-001** to **TC-LP-026**) covering:
+The suite currently implements test cases covering:
 
-- **Authentication Flows**: Valid/Invalid credentials, locked-out accounts.
-- **Edge Cases**: Empty fields, case sensitivity, and incorrect passwords.
+- **Authentication Flows (TC-LP-001 to TC-LP-026)**: Valid/Invalid credentials, locked-out accounts, empty fields, and case sensitivity.
+- **Home Page & Inventory Audits (TC-HP-001 to TC-HP-005)**:
+  - **Product Name Consistency**: Verifies names follow the "Sauce Labs" prefix (Detects known Red T-Shirt bug).
+  - **Description Integrity**: Scans for "unknown syntax" bugs like `carry.allTheThings()`.
+  - **Pricing Checks**: Validates currency formatting and price correctness.
+  - **UI Stability**: Verifies header logos, broken images, and asset uniqueness.
 - **Buggy Personas**:
   - `problem_user`: Identifies broken images and duplicate assets.
   - `performance_glitch_user`: Measures and asserts login performance delays.
