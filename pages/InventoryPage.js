@@ -44,6 +44,73 @@ class InventoryPage {
 
           expect(uniqueSrcs.size, `Found ${uniqueSrcs.size} unique images for ${srcs.length} products. Is this the problem_user bug?`).toBe(srcs.length);
      }
+
+     // Verifies the names of all products on the inventory page.
+     async verifyProductName() {
+          const expectedNames = [
+               "Sauce Labs Backpack",
+               "Sauce Labs Bike Light",
+               "Sauce Labs Bolt T-Shirt",
+               "Sauce Labs Fleece Jacket",
+               "Sauce Labs Onesie",
+               "Test.allTheThings() T-Shirt (Red)"
+          ];
+
+          const productElements = this.page.locator('.inventory_item_name');
+          const count = await productElements.count();
+
+          expect(count, `Expected ${expectedNames.length} products, but found ${count}`).toBe(expectedNames.length);
+
+          for (let i = 0; i < count; i++) {
+               const actualName = await productElements.nth(i).innerText();
+               expect(actualName).toBe(expectedNames[i]);
+          }
+     }
+
+     // Verifies that product names follow the "Sauce Labs [Name]" format.
+     async verifyProductNameFormat() {
+          const productElements = this.page.locator('.inventory_item_name');
+          const productNames = await productElements.allTextContents();
+
+          // Strict check: every product must start with "Sauce Labs "
+          const mismatchedNames = productNames.filter(name => !name.startsWith("Sauce Labs "));
+
+          expect(mismatchedNames, `Found products that do not follow the "Sauce Labs" format: ${mismatchedNames.join(', ')}`).toHaveLength(0);
+     }
+
+     // Verifies that each product has a non-empty description.
+     async verifyProductDescriptions() {
+          const descriptions = this.page.locator('.inventory_item_desc');
+          const count = await descriptions.count();
+
+          for (let i = 0; i < count; i++) {
+               const text = await descriptions.nth(i).innerText();
+               expect(text.length).toBeGreaterThan(0);
+          }
+     }
+     async verifyProductPriceFormat() {
+          const prices = this.page.locator('.inventory_item_price');
+          const count = await prices.count();
+
+          for (let i = 0; i < count; i++) {
+               const text = await prices.nth(i).innerText();
+               expect(text).toMatch(/^\$\d+\.\d{2}$/);
+          }
+     }
+
+     // Verifies that product descriptions contain valid language and no 'code' syntax.
+     async verifyProductDescriptionContent() {
+          const items = this.page.locator('.inventory_item');
+          const count = await items.count();
+
+          for (let i = 0; i < count; i++) {
+               const name = await items.nth(i).locator('.inventory_item_name').innerText();
+               const desc = await items.nth(i).locator('.inventory_item_desc').innerText();
+
+               // Checking for the known bug: "carry.allTheThings()" in the description
+               expect(desc, `Product "${name}" has a description with invalid syntax: "${desc}"`).not.toContain('carry.allTheThings()');
+          }
+     }
 }
 
 module.exports = { InventoryPage };

@@ -12,7 +12,7 @@ const config = ({
   use: {
     baseURL: 'https://www.saucedemo.com/',
     browserName: 'chromium',
-    // headless: true,
+    headless: true,
     trace: 'on-first-retry',
   },
 });
