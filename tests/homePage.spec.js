@@ -43,6 +43,11 @@ test.describe("Home Page Tests", () => {
           await inventoryPage.verifyProductDescriptionContent();
      });
 
+     //TC-HP-006
+     test("Verify Name (A to Z) sorting", async () => {
+          await inventoryPage.verifyProductNameAZ();
+     });
+
 
      // //TC-HP-049
      // test("Verify header logo is displayed", async () => {

@@ -111,6 +111,20 @@ class InventoryPage {
                expect(description, `Product "${name}" has invalid syntax in its description: "${description}"`).not.toContain('carry.allTheThings()');
           }
      }
+
+     // Verifies that products are sorted alphabetically (A-Z)
+     async verifyProductNameAZ() {
+          // Select 'Name (A to Z)' just in case it's not default (value is 'az')
+          await this.page.selectOption('.product_sort_container', 'az');
+
+          const productElements = this.page.locator('.inventory_item_name');
+          const productNames = await productElements.allTextContents();
+
+          // Create a sorted copy of the names
+          const sortedNames = [...productNames].sort();
+
+          expect(productNames, "Products should be sorted alphabetically in ascending order (A-Z)").toEqual(sortedNames);
+     }
 }
 
 module.exports = { InventoryPage };
