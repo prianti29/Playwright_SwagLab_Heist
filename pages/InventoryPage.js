@@ -125,6 +125,48 @@ class InventoryPage {
 
           expect(productNames, "Products should be sorted alphabetically in ascending order (A-Z)").toEqual(sortedNames);
      }
+
+     // Verifies that products are sorted alphabetically (Z-A)
+     async verifyProductNameZA() {
+          // Select 'Name (Z to A)' just in case it's not default (value is 'za')
+          await this.page.selectOption('.product_sort_container', 'za');
+
+          const productElements = this.page.locator('.inventory_item_name');
+          const productNames = await productElements.allTextContents();
+
+          // Create a sorted copy of the names
+          const sortedNames = [...productNames].sort().reverse();
+
+          expect(productNames, "Products should be sorted alphabetically in descending order (Z-A)").toEqual(sortedNames);
+     }
+
+     // Verifies that products are sorted by price (low to high)
+     async verifyProductPriceLowToHigh() {
+          // Select 'Price (low to high)' just in case it's not default (value is 'lohi')
+          await this.page.selectOption('.product_sort_container', 'lohi');
+
+          const productElements = this.page.locator('.inventory_item_price');
+          const productPrices = await productElements.allTextContents();
+
+          // Create a sorted copy of the prices
+          const sortedPrices = [...productPrices].sort((a, b) => parseFloat(a.replace('$', '')) - parseFloat(b.replace('$', '')));
+
+          expect(productPrices, "Products should be sorted by price in ascending order (low to high)").toEqual(sortedPrices);
+     }
+
+     // Verifies that products are sorted by price (high to low)
+     async verifyProductPriceHighToLow() {
+          // Select 'Price (high to low)' just in case it's not default (value is 'hilo')
+          await this.page.selectOption('.product_sort_container', 'hilo');
+
+          const productElements = this.page.locator('.inventory_item_price');
+          const productPrices = await productElements.allTextContents();
+
+          // Create a sorted copy of the prices
+          const sortedPrices = [...productPrices].sort((a, b) => parseFloat(b.replace('$', '')) - parseFloat(a.replace('$', '')));
+
+          expect(productPrices, "Products should be sorted by price in descending order (high to low)").toEqual(sortedPrices);
+     }
 }
 
 module.exports = { InventoryPage };

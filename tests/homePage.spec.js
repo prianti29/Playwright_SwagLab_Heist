@@ -48,6 +48,21 @@ test.describe("Home Page Tests", () => {
           await inventoryPage.verifyProductNameAZ();
      });
 
+     //TC-HP-007
+     test("Verify Name (Z to A) sorting", async () => {
+          await inventoryPage.verifyProductNameZA();
+     });
+
+     //TC-HP-008
+     test("Verify Price (low to high) sorting", async () => {
+          await inventoryPage.verifyProductPriceLowToHigh();
+     });
+
+     //TC-HP-009
+     test("Verify Price (high to low) sorting", async () => {
+          await inventoryPage.verifyProductPriceHighToLow();
+     });
+
 
      // //TC-HP-049
      // test("Verify header logo is displayed", async () => {
