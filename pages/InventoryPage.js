@@ -6,6 +6,11 @@ class InventoryPage {
           this.headerLogo = page.locator('div.app_logo');
           this.menuButton = page.getByRole('button', { name: 'Open Menu' });
           this.logoutLink = page.getByRole('link', { name: 'Logout' });
+          this.allItemsLink = page.getByRole('link', { name: 'All Items' });
+          this.aboutLink = page.getByRole('link', { name: 'About' });
+          this.resetAppStateLink = page.getByRole('link', { name: 'Reset App State' });
+          this.cartBadge = page.locator('.shopping_cart_badge');
+          this.cartLink = page.locator('.shopping_cart_link');
      }
 
      async verifyHeaderLogo() {
@@ -16,19 +21,8 @@ class InventoryPage {
           await this.menuButton.click();
           await this.logoutLink.click();
      }
-
-     /**
-      * Navigates to a product's detail page by clicking on its name.
-      * @param {string} name - The name of the product to click.
-      */
-     async navigateToProductByName(name) {
-          await this.page.locator('.inventory_item_name', { hasText: name }).click();
-     }
-
-
-     //   Verifies that all images on the page have loaded correctly.
-     //   A broken image will have a naturalWidth of 0.
-
+     // Verifies that all images on the page have loaded correctly.
+     // A broken image will have a naturalWidth of 0.
      async verifyNoBrokenImages() {
           const images = this.page.locator('img');
           const allImages = await images.all();
@@ -42,9 +36,8 @@ class InventoryPage {
      }
 
 
-     //   Verifies that product images are unique. 
-     //   problem_user often has the same image for all products.
-
+     // Verifies that product images are unique. 
+     // problem_user often has the same image for all products.
      async verifyProductImagesAreUnique() {
           const productImages = this.page.locator('.inventory_item_img img');
           const srcs = await productImages.evaluateAll(imgs => imgs.map(img => img.src));
@@ -215,6 +208,54 @@ class InventoryPage {
 
                expect(productPrices, `Products should be sorted by price (${expectedOption})`).toEqual(expectedPrices);
           }
+     }
+
+     // Navigates to a product's detail page by clicking on its name.
+     // name - The name of the product to click.
+     async navigateToProductByName(name) {
+          await this.page.locator('.inventory_item_name', { hasText: name }).click();
+     }
+
+
+     // Adds a product to the cart by its name.
+     // name - The name of the product.
+     async addItemToCart(name) {
+          const productContainer = this.page.locator('.inventory_item', { hasText: name });
+          await productContainer.locator('button[id^="add-to-cart"]').click();
+     }
+
+     // Removes a product from the cart by its name.
+     // name - The name of the product.
+     async removeItemFromCart(name) {
+          const productContainer = this.page.locator('.inventory_item', { hasText: name });
+          await productContainer.locator('button[id^="remove"]').click();
+     }
+
+     // Verifies the number shown on the cart badge.
+     // count - The expected count (as a string).
+     async verifyCartCount(count) {
+          if (count === '0' || count === 0) {
+               await expect(this.cartBadge).not.toBeVisible();
+          } else {
+               await expect(this.cartBadge).toHaveText(count.toString());
+          }
+     }
+
+     // Opens the side menu and verifies the presence of all expected labels.
+     async verifySideMenuLabels() {
+          await this.menuButton.click();
+
+          await expect(this.allItemsLink).toBeVisible();
+          await expect(this.allItemsLink).toHaveText('All Items');
+
+          await expect(this.aboutLink).toBeVisible();
+          await expect(this.aboutLink).toHaveText('About');
+
+          await expect(this.logoutLink).toBeVisible();
+          await expect(this.logoutLink).toHaveText('Logout');
+
+          await expect(this.resetAppStateLink).toBeVisible();
+          await expect(this.resetAppStateLink).toHaveText('Reset App State');
      }
 }
 

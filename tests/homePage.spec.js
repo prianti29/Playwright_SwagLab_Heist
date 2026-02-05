@@ -66,11 +66,11 @@ test.describe("Home Page Tests", () => {
 
      //TC-HP-010
      test("Verify sorting resets to default on page refresh", async ({ page }) => {
-          // 1. Change sorting to Price (high to low)
+          // Change sorting to Price (high to low)
           await inventoryPage.verifyProductPriceHighToLow();
-          // 2. Refresh the page
+          // Refresh the page
           await page.reload();
-          // 3. Verify that the sort order has returned to default (Name A-Z)
+          // Verify that the sort order has returned to default (Name A-Z)
           await inventoryPage.verifySortOrder('az');
      });
 
@@ -87,33 +87,68 @@ test.describe("Home Page Tests", () => {
           ];
 
           for (const name of productNames) {
-               // 1. Click on product name
+               // Click on product name
                await inventoryPage.navigateToProductByName(name);
 
-               // 2. Verify PDP details
+               // Verify PDP details
                await productPage.verifyProductDetails(name);
 
-               // 3. Go back to inventory
+               // Go back to inventory
                await productPage.goBackToInventory();
 
-               // 4. Verify back on Inventory page
+               // Verify back on Inventory page
                await expect(page).toHaveURL(/.*inventory.html/);
           }
      });
 
+     //TC-HP-012
+     test("Verify the functionality of add to cart button", async ({ page }) => {
+          const product = "Sauce Labs Backpack";
 
-     // //TC-HP-049
-     // test("Verify header logo is displayed", async () => {
-     //      await inventoryPage.verifyHeaderLogo();
-     // });
+          // Add product to cart
+          await inventoryPage.addItemToCart(product);
 
-     // //TC-HP-050
-     // test("Verify no broken images", async () => {
-     //      await inventoryPage.verifyNoBrokenImages();
-     // });
+          // Verify cart count is 1
+          await inventoryPage.verifyCartCount(1);
+     });
 
-     // //TC-HP-051
-     // test("Verify product images are unique", async () => {
-     //      await inventoryPage.verifyProductImagesAreUnique();
-     // });
+     //TC-HP-013
+     test("Verify the functionality of Remove button on the inventory page", async ({ page }) => {
+          const product = "Sauce Labs Backpack";
+
+          // Add product to cart so Remove button appears
+          await inventoryPage.addItemToCart(product);
+          await inventoryPage.verifyCartCount(1);
+
+          // Click Remove button
+          await inventoryPage.removeItemFromCart(product);
+
+          // Verify cart count is empty/0
+          await inventoryPage.verifyCartCount(0);
+     });
+
+     //TC-HP-014
+     test("Verify header logo is displayed", async () => {
+          await inventoryPage.verifyHeaderLogo();
+     });
+
+     //TC-HP-015
+     test("Verify no broken images", async () => {
+          await inventoryPage.verifyNoBrokenImages();
+     });
+
+     //TC-HP-016
+     test("Verify product images are unique", async () => {
+          await inventoryPage.verifyProductImagesAreUnique();
+     });
+
+     //TC-HP-017
+     test("Verify logout functionality", async () => {
+          await inventoryPage.logout();
+     });
+
+     //TC-HP-018
+     test("Verify burger menu labels", async () => {
+          await inventoryPage.verifySideMenuLabels();
+     });
 });
