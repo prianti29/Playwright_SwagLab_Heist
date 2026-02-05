@@ -17,6 +17,14 @@ class InventoryPage {
           await this.logoutLink.click();
      }
 
+     /**
+      * Navigates to a product's detail page by clicking on its name.
+      * @param {string} name - The name of the product to click.
+      */
+     async navigateToProductByName(name) {
+          await this.page.locator('.inventory_item_name', { hasText: name }).click();
+     }
+
 
      //   Verifies that all images on the page have loaded correctly.
      //   A broken image will have a naturalWidth of 0.
@@ -166,6 +174,47 @@ class InventoryPage {
           const sortedPrices = [...productPrices].sort((a, b) => parseFloat(b.replace('$', '')) - parseFloat(a.replace('$', '')));
 
           expect(productPrices, "Products should be sorted by price in descending order (high to low)").toEqual(sortedPrices);
+     }
+
+     async getSortOption() {
+          return await this.page.locator('.product_sort_container').inputValue();
+     }
+
+     /*
+      * Verifies that the products are sorted according to the selected option.
+      * This method checks both the dropdown value and the actual order of items on the page.
+      * @param {string} expectedOption - The sort option value ('az', 'za', 'lohi', 'hilo')
+      */
+     async verifySortOrder(expectedOption) {
+          // Check if the sorting dropdown shows the expected option
+          const currentOption = await this.getSortOption();
+          expect(currentOption).toBe(expectedOption);
+
+          // Verify Name-based sorting (A-Z or Z-A)
+          if (expectedOption === 'az' || expectedOption === 'za') {
+               const productElements = this.page.locator('.inventory_item_name');
+               const productNames = await productElements.allTextContents();
+
+               // Create the expected order by sorting the actual names alphabetically
+               let expectedNames = [...productNames].sort();
+               if (expectedOption === 'za') expectedNames.reverse();
+
+               expect(productNames, `Products should be sorted by name (${expectedOption})`).toEqual(expectedNames);
+
+               // Verify Price-based sorting (Low-to-High or High-to-Low)
+          } else if (expectedOption === 'lohi' || expectedOption === 'hilo') {
+               const productElements = this.page.locator('.inventory_item_price');
+               const productPrices = await productElements.allTextContents();
+
+               // Create the expected order by parsing prices as floats and sorting them numerically
+               let expectedPrices = [...productPrices].sort((a, b) => {
+                    const priceA = parseFloat(a.replace('$', ''));
+                    const priceB = parseFloat(b.replace('$', ''));
+                    return expectedOption === 'lohi' ? priceA - priceB : priceB - priceA;
+               });
+
+               expect(productPrices, `Products should be sorted by price (${expectedOption})`).toEqual(expectedPrices);
+          }
      }
 }
 

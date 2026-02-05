@@ -1,6 +1,7 @@
 const { test, expect } = require("@playwright/test");
 const { LoginPage } = require("../pages/LoginPage");
 const { InventoryPage } = require("../pages/InventoryPage");
+const { ProductPage } = require("../pages/ProductPage");
 
 test.describe("Home Page Tests", () => {
      let loginPage;
@@ -61,6 +62,43 @@ test.describe("Home Page Tests", () => {
      //TC-HP-009
      test("Verify Price (high to low) sorting", async () => {
           await inventoryPage.verifyProductPriceHighToLow();
+     });
+
+     //TC-HP-010
+     test("Verify sorting resets to default on page refresh", async ({ page }) => {
+          // 1. Change sorting to Price (high to low)
+          await inventoryPage.verifyProductPriceHighToLow();
+          // 2. Refresh the page
+          await page.reload();
+          // 3. Verify that the sort order has returned to default (Name A-Z)
+          await inventoryPage.verifySortOrder('az');
+     });
+
+     //TC-HP-011
+     test("Verify redirection to PDP of each product", async ({ page }) => {
+          const productPage = new ProductPage(page);
+          const productNames = [
+               "Sauce Labs Backpack",
+               "Sauce Labs Bike Light",
+               "Sauce Labs Bolt T-Shirt",
+               "Sauce Labs Fleece Jacket",
+               "Sauce Labs Onesie",
+               "Test.allTheThings() T-Shirt (Red)"
+          ];
+
+          for (const name of productNames) {
+               // 1. Click on product name
+               await inventoryPage.navigateToProductByName(name);
+
+               // 2. Verify PDP details
+               await productPage.verifyProductDetails(name);
+
+               // 3. Go back to inventory
+               await productPage.goBackToInventory();
+
+               // 4. Verify back on Inventory page
+               await expect(page).toHaveURL(/.*inventory.html/);
+          }
      });
 
 
