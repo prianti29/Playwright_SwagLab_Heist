@@ -304,6 +304,38 @@ class InventoryPage {
           await expect(this.aboutLink).toBeVisible();
           await this.aboutLink.click();
      }
+
+     // Opens the side menu and clicks on the "Logout" link.
+     async navigateToLogout() {
+          await this.menuButton.click();
+          await expect(this.logoutLink).toBeVisible();
+          await this.logoutLink.click();
+     }
+
+     // Opens the side menu and clicks on the "Reset App State" link.
+     async navigateToResetAppState() {
+          await this.menuButton.click();
+          await expect(this.resetAppStateLink).toBeVisible();
+          await this.resetAppStateLink.click();
+     }
+
+     // High-level verification of the Reset App State functionality.
+     async verifyResetAppState() {
+          // 1. Setup: Change state (add to cart, change sort)
+          await this.addItemToCart("Sauce Labs Backpack");
+          await this.verifyProductPriceHighToLow();
+
+          const currentCount = await this.cartBadge.count();
+          expect(currentCount).toBeGreaterThan(0);
+
+          // 2. Action: Reset
+          await this.navigateToResetAppState();
+          await this.page.reload(); // Force UI refresh as SauceDemo reset can be lazy
+
+          // 3. Validation: Assert defaults
+          await this.verifyCartCount(0);
+          await this.verifySortOrder('az');
+     }
 }
 
 module.exports = { InventoryPage };

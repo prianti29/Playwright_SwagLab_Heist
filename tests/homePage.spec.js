@@ -163,8 +163,29 @@ test.describe("Home Page Tests", () => {
      //TC-HP-020
      test("Verify 'About' side menu link redirection", async ({ page }) => {
           await inventoryPage.navigateToAbout();
-          
+
           // Verify redirection to Sauce Labs
           await expect(page).toHaveURL('https://saucelabs.com/');
+     });
+
+     //TC-HP-021    
+     test("Verify functionality of the side menu labels 'About'", async ({ page }) => {
+          await inventoryPage.navigateToAbout();
+
+          // Verify redirection to Sauce Labs
+          await expect(page).toHaveURL('https://saucelabs.com/');
+     });
+
+     //TC-HP-022
+     test("Verify functionality of the side menu labels 'Logout'", async ({ page }) => {
+          await inventoryPage.navigateToLogout();
+
+          // Verify redirection to Sauce Labs
+          await expect(page).toHaveURL('https://www.saucedemo.com/');
+     });
+
+     //TC-HP-023
+     test("Verify functionality of the side menu labels 'Reset App State'", async ({ page }) => {
+          await inventoryPage.verifyResetAppState();
      });
 });
