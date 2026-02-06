@@ -257,6 +257,53 @@ class InventoryPage {
           await expect(this.resetAppStateLink).toBeVisible();
           await expect(this.resetAppStateLink).toHaveText('Reset App State');
      }
+
+     // Opens the side menu, clicks "All Items", and verifies it is highlighted and functional.
+     async verifyAllItemsHighlight() {
+          await this.menuButton.click();
+
+          // Wait for menu to be visible
+          await expect(this.allItemsLink).toBeVisible();
+
+          // Capture initial style to compare later
+          const initialStyle = await this.allItemsLink.evaluate(el => {
+               const style = window.getComputedStyle(el);
+               return {
+                    color: style.color,
+                    fontWeight: style.fontWeight,
+                    backgroundColor: style.backgroundColor
+               };
+          });
+
+          // Click "All Items"
+          await this.allItemsLink.click();
+
+          // According to the user, the expected result is that it should be highlighted.
+          // Since the actual result is "not highlighted", we check if the style changed at all.
+          const finalStyle = await this.allItemsLink.evaluate(el => {
+               const style = window.getComputedStyle(el);
+               return {
+                    color: style.color,
+                    fontWeight: style.fontWeight,
+                    backgroundColor: style.backgroundColor
+               };
+          });
+
+          // We expect the style (color, font weight, etc.) to change if it's highlighted.
+          // This assertion will fail if the styles are identical, confirming it's "not highlighted".
+          expect(finalStyle, "All Items label should be highlighted (style change) when selected").not.toEqual(initialStyle);
+
+          // Also verify that the menu has closed (action happened)
+          // Using a shorter timeout (2s) so the test fails quickly instead of the 40s default.
+          await expect(this.allItemsLink).not.toBeVisible({ timeout: 2000 });
+     }
+
+     // Opens the side menu and clicks on the "About" link.
+     async navigateToAbout() {
+          await this.menuButton.click();
+          await expect(this.aboutLink).toBeVisible();
+          await this.aboutLink.click();
+     }
 }
 
 module.exports = { InventoryPage };

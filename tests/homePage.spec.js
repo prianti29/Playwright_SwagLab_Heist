@@ -151,4 +151,20 @@ test.describe("Home Page Tests", () => {
      test("Verify burger menu labels", async () => {
           await inventoryPage.verifySideMenuLabels();
      });
+
+     //TC-HP-019
+     test("Verify 'All Items' side menu highlight and functionality", async () => {
+          // The user expects the "All Items" label to be highlighted, but says it actually isn't 
+          // and clicking it does nothing. This test is expected to fail.
+          test.fail(true, "All items label is not highlighted and there is no action after clicking it.");
+          await inventoryPage.verifyAllItemsHighlight();
+     });
+
+     //TC-HP-020
+     test("Verify 'About' side menu link redirection", async ({ page }) => {
+          await inventoryPage.navigateToAbout();
+          
+          // Verify redirection to Sauce Labs
+          await expect(page).toHaveURL('https://saucelabs.com/');
+     });
 });
