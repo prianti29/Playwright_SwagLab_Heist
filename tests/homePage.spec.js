@@ -188,4 +188,17 @@ test.describe("Home Page Tests", () => {
      test("Verify functionality of the side menu labels 'Reset App State'", async ({ page }) => {
           await inventoryPage.verifyResetAppState();
      });
+
+     //TC-HP-024
+     test("Verify functionality of the cart icon", async ({ page }) => {
+          await inventoryPage.verifyCartIcon();
+     });
+
+     //TC-HP-025
+     test("Verify functionality of 'Reset App State' for cart", async ({ page }) => {
+          await inventoryPage.addItemToCart("Sauce Labs Backpack");
+          await inventoryPage.verifyCartCount(1);
+          await inventoryPage.verifyResetAppState();
+          await inventoryPage.verifyCartCount(0);
+     });
 });

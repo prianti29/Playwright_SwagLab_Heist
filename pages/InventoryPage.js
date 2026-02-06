@@ -321,20 +321,40 @@ class InventoryPage {
 
      // High-level verification of the Reset App State functionality.
      async verifyResetAppState() {
-          // 1. Setup: Change state (add to cart, change sort)
-          await this.addItemToCart("Sauce Labs Backpack");
+          // 1. Setup: Change state if it's not already changed
+          const currentCount = await this.cartBadge.count();
+          if (currentCount === 0) {
+               await this.addItemToCart("Sauce Labs Backpack");
+          }
           await this.verifyProductPriceHighToLow();
 
-          const currentCount = await this.cartBadge.count();
-          expect(currentCount).toBeGreaterThan(0);
+          await expect(this.cartBadge).toBeVisible();
 
           // 2. Action: Reset
           await this.navigateToResetAppState();
-          await this.page.reload(); // Force UI refresh as SauceDemo reset can be lazy
+          await this.page.reload(); // Force UI refresh
 
           // 3. Validation: Assert defaults
           await this.verifyCartCount(0);
           await this.verifySortOrder('az');
+     }
+
+     // Verifies the cart icon is functional (appears when items are added).
+     async verifyCartIcon() {
+          // The main cart container/link should always be visible
+          await expect(this.cartLink).toBeVisible();
+
+          // When cart is empty, the badge should NOT exist
+          await expect(this.cartBadge).not.toBeVisible();
+
+          // Add an item to make the badge appear
+          await this.addItemToCart("Sauce Labs Backpack");
+          await expect(this.cartBadge).toBeVisible();
+          await expect(this.cartBadge).toHaveText('1');
+
+          // Cleanup: Remove the item
+          await this.removeItemFromCart("Sauce Labs Backpack");
+          await expect(this.cartBadge).not.toBeVisible();
      }
 }
 
