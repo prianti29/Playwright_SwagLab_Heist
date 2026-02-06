@@ -12,7 +12,8 @@ const config = ({
   use: {
     baseURL: 'https://www.saucedemo.com/',
     browserName: 'chromium',
-    headless: false,
+    // Run headless in CI, but headed locally (if you prefer)
+    headless: !!process.env.CI,
     trace: 'on-first-retry',
   },
 });
