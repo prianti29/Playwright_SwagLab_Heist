@@ -356,6 +356,17 @@ class InventoryPage {
           await this.removeItemFromCart("Sauce Labs Backpack");
           await expect(this.cartBadge).not.toBeVisible();
      }
+     // Verifies that the 'Add to cart' button has changed to 'Remove' for a specific product
+     async verifyRemoveButton(name) {
+          const productContainer = this.page.locator('.inventory_item', { hasText: name });
+          await expect(productContainer.locator('button[id^="remove"]')).toBeVisible();
+          await expect(productContainer.locator('button[id^="remove"]')).toHaveText('Remove');
+     }
+
+     // Navigates to the cart page
+     async navigateToCart() {
+          await this.cartLink.click();
+     }
 }
 
 module.exports = { InventoryPage };
