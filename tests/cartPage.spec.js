@@ -112,5 +112,60 @@ test.describe("Cart Page Tests", () => {
         await inventoryPage.verifyCartCount(2);
     });
 
+    test("Verify the behavior when the cart is empty", async ({ page }) => {
+        test.fail(true, "Cart should display a message like 'Your cart is empty' but it does not.");
+        // Add product to cart
+        await inventoryPage.addItemToCart(product);
+        // Verify button changes to Remove
+        await inventoryPage.verifyRemoveButton(product);
+        // Verify cart badge updates
+        await inventoryPage.verifyCartCount(1);
+        // Navigate to Cart Page
+        await inventoryPage.navigateToCart();
+        await cartPage.removeItemFromCart(product);
+
+        // Verify product is removed from cart list
+        await cartPage.verifyProductRemoved(product);
+
+        // Verify cart badge updates to 0 (hidden)
+        await inventoryPage.verifyCartCount(0);
+
+        // Verify we are still on the cart page
+        await expect(page).toHaveURL("https://www.saucedemo.com/cart.html");
+
+        // Verify "Your cart is empty" message appears
+        await expect(page.locator('body')).toHaveText(/Your cart is empty/);
+    });
+
+    test("Verify that a user can add multiple items to the cart", async ({ page }) => {
+        let product_2 = "Sauce Labs Bike Light";
+        // Add product to cart
+        await inventoryPage.addItemToCart(product);
+        // Verify button changes to Remove
+        await inventoryPage.verifyRemoveButton(product);
+        // Verify cart badge updates
+        await inventoryPage.verifyCartCount(1);
+        // Navigate to Cart Page
+        await inventoryPage.navigateToCart();
+        // Verify Cart page displays the added product
+        await cartPage.verifyProductInCart(product);
+        // Continue shopping
+        await cartPage.continueShopping();
+        // Verify that the user is redirected to the inventory page
+        await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html");
+
+        await inventoryPage.addItemToCart(product_2);
+        await inventoryPage.verifyRemoveButton(product_2);
+        await inventoryPage.verifyCartCount(2);
+        // Navigate to Cart Page
+        await inventoryPage.navigateToCart();
+        // Verify both products are present in the cart
+        await cartPage.verifyProductInCart(product);
+        await cartPage.verifyProductInCart(product_2);
+        await inventoryPage.verifyCartCount(2);
+
+
+    });
+
 
 });
