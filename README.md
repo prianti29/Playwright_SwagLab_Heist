@@ -18,11 +18,13 @@ Playwright_SwagLab_Heist/
 ├── .github/workflows/    # CI/CD Configuration (GitHub Actions)
 ├── pages/                # Page Object Model classes
 │   ├── LoginPage.js      # Auth-related actions & locators
-│   └── InventoryPage.js  # Product & Navigation actions
+│   ├── InventoryPage.js  # Product & Navigation actions
+│   └── CartPage.js       # Cart verification & interaction actions
 ├── snapshots/            # Baseline images for Visual Regression
 ├── tests/                # E2E Test Scripts
 │   ├── login.spec.js     # Comprehensive login & auth tests
-│   └── homePage.spec.js  # Product inventory & UI audit tests
+│   ├── homePage.spec.js  # Product inventory & UI audit tests
+│   └── cartPage.spec.js  # Cart management & checkout flow tests
 ├── playwright.config.js  # Global Playwright settings & timeouts
 ├── package.json          # Project dependencies & scripts
 └── README.md             # Project documentation
@@ -82,6 +84,11 @@ The suite currently implements test cases covering:
   - `performance_glitch_user`: Measures and asserts login performance delays.
   - `error_user`: Monitors and detects browser console errors during navigation.
   - `visual_user`: Uses visual regression to detect UI distortions.
+- **Cart & Checkout Flows**:
+  - **Add/Remove Items**: Verifies cart badge updates and button state changes.
+  - **Cart Persistence**: Checks that items remain in cart after navigation.
+  - **Checkout Process**: Validates the flow from cart to checkout completion.
+  - **Continue Shopping**: Ensures users can return to inventory from the cart.
 
 ##  Troubleshooting
 
