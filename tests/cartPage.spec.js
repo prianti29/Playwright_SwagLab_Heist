@@ -164,4 +164,49 @@ test.describe("Cart Page Tests", () => {
         await inventoryPage.verifyCartCount(2);
     });
 
+    test("Verify system behavior when adding the same item more than one", async ({ page }) => {
+        // Add product to cart
+        await inventoryPage.addItemToCart(product);
+
+        // Navigate to Cart Page
+        await inventoryPage.navigateToCart();
+
+        // Verify that the user CAN increment the product quantity (Expected Behavior)
+        // This assertion will fail because the feature doesn't exist yet, highlighting the gap.
+        await cartPage.verifyItemQuantityIsEditable(product);
+
+        // If the above passed (e.g. if we implemented it), we would then try:
+        // await cartPage.incrementQuantity(product);
+        // await cartPage.verifyProductQuantity(product, 2);
+    });
+
+    test.describe("Mobile Support Tests", () => {
+        // iPhone 12/13 viewport
+        test.use({ viewport: { width: 390, height: 844 } });
+
+        test("Verify cart functionality on mobile devices", async ({ page }) => {
+            // Verify layout is responsive - Hamburger menu should be visible (it is on desktop too, but critical here)
+            await expect(inventoryPage.menuButton).toBeVisible();
+
+            // Add product to cart
+            await inventoryPage.addItemToCart(product);
+
+            // Verify cart badge updates
+            await inventoryPage.verifyCartCount(1);
+
+            // Navigate to Cart Page
+            await inventoryPage.navigateToCart();
+
+            // Verify Cart page displays the added product
+            await cartPage.verifyProductInCart(product);
+
+            // Verify layout efficiency: ensure checkout button is visible without scrolling (simple check)
+            await expect(cartPage.checkoutButton).toBeVisible();
+
+            // Verify items flow correctly (width check to ensure it's not overflowing)
+            const cartItemBox = await page.locator('.cart_item').first().boundingBox();
+            expect(cartItemBox.width).toBeLessThan(390); // Should fit within viewport width
+        });
+    });
+
 });

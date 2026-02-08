@@ -11,7 +11,7 @@ class CartPage {
     async verifyProductInCart(productName) {
         const product = this.cartItem.filter({ hasText: productName });
         await expect(product).toBeVisible();
-        // await expect(product.locator('.inventory_item_name')).toHaveText(productName);
+        await expect(product.locator('.inventory_item_name')).toHaveText(productName);
     }
 
     async verifyCartItems(productNames) {
@@ -37,40 +37,49 @@ class CartPage {
         await this.continueShoppingButton.click();
     }
 
-    // async verifyProductQuantity(productName, expectedQuantity) {
-    //     const product = this.cartItem.filter({ hasText: productName });
-    //     const quantity = await product.locator('.cart_quantity').textContent();
-    //     await expect(quantity).toBe(expectedQuantity);
-    // }
+    async verifyProductQuantity(productName, expectedQuantity) {
+        const product = this.cartItem.filter({ hasText: productName });
+        const quantity = await product.locator('.cart_quantity').textContent();
+        await expect(quantity).toBe(expectedQuantity.toString());
+    }
 
-    // async verifyProductPrice(productName, expectedPrice) {
-    //     const product = this.cartItem.filter({ hasText: productName });
-    //     const price = await product.locator('.cart_item_price').textContent();
-    //     await expect(price).toBe(expectedPrice);
-    // }
+    async verifyItemQuantityReadOnly(productName) {
+        const product = this.cartItem.filter({ hasText: productName });
+        const quantityElement = product.locator('.cart_quantity');
 
-    // async verifyProductDescription(productName, expectedDescription) {
-    //     const product = this.cartItem.filter({ hasText: productName });
-    //     const description = await product.locator('.cart_item_desc').textContent();
-    //     await expect(description).toBe(expectedDescription);
-    // }
+        // Verify the element exists
+        await expect(quantityElement).toBeVisible();
 
-    // async verifyProductImage(productName, expectedImage) {
-    //     const product = this.cartItem.filter({ hasText: productName });
-    //     const image = await product.locator('.cart_item_img').getAttribute('src');
-    //     await expect(image).toBe(expectedImage);
-    // }
+        // Verify it is not an input field
+        const tagName = await quantityElement.evaluate(el => el.tagName.toLowerCase());
+        expect(tagName, "Quantity should not be an input field").not.toBe('input');
 
-    // async verifyProductTotal(productName, expectedTotal) {
-    //     const product = this.cartItem.filter({ hasText: productName });
-    //     const total = await product.locator('.cart_item_price').textContent();
-    //     await expect(total).toBe(expectedTotal);
-    // }
+        // Verify there are no obvious increment buttons/controls inside the cart item
+        const hasIncrementButton = await product.getByRole('button', { name: '+' }).count() > 0 ||
+            await product.getByRole('button', { name: 'plus' }).count() > 0;
+        expect(hasIncrementButton, "Increment button should not exist").toBe(false);
+    }
 
-    // async verifyProductInCart(productName) {
-    //     const product = this.cartItem.filter({ hasText: productName });
-    //     await expect(product).toBeVisible();
-    // }
+    // Verifies that the item quantity IS editable (Expected Behavior)
+    async verifyItemQuantityIsEditable(productName) {
+        const product = this.cartItem.filter({ hasText: productName });
+        const quantityElement = product.locator('.cart_quantity');
+
+        // Check if it's an input field or has increment buttons
+        const tagName = await quantityElement.evaluate(el => el.tagName.toLowerCase());
+
+        // We assert true to fail if it's not an input.
+        // Or we could check for an increment button.
+        // Since we want to verify "Quantity should be increased", valid generic checks are:
+        // 1. Is it an input?
+        // 2. Are there buttons?
+
+        const hasIncrementButton = await product.locator('button').filter({ hasText: '+' }).count() > 0;
+
+        expect(tagName === 'input' || hasIncrementButton,
+            `Expected product "${productName}" to have editable quantity (input field or '+' button), but found read-only "${tagName}" and no buttons.`
+        ).toBe(true);
+    }
 }
 
 module.exports = { CartPage };
