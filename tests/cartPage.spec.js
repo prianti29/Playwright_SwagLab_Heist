@@ -247,6 +247,29 @@ test.describe("Cart Page Tests", () => {
                 expect(parseInt(fontSize)).toBeGreaterThan(10); // arbitrary minimum readable size
             }
         });
+        test("Verify that item names, prices, and descriptions are correctly aligned", async ({ page }) => {
+            await inventoryPage.addItemToCart(product);
+            await inventoryPage.navigateToCart();
+
+            const cartItemLabel = page.locator('.cart_item_label').first();
+            const name = cartItemLabel.locator('.inventory_item_name');
+            const desc = cartItemLabel.locator('.inventory_item_desc');
+            const price = cartItemLabel.locator('.inventory_item_price');
+
+            // Get bounding boxes
+            const nameBox = await name.boundingBox();
+            const descBox = await desc.boundingBox();
+            const priceBox = await price.boundingBox();
+
+            // Verify Left Alignment: They should all start at the same X coordinate (margin of error allowed)
+            // Using a small tolerance (e.g., 2px) for potential sub-pixel rendering differences
+            expect(Math.abs(nameBox.x - descBox.x)).toBeLessThan(2);
+            expect(Math.abs(descBox.x - priceBox.x)).toBeLessThan(2);
+
+            // Verify Vertical Stacking (Name > Description > Price)
+            expect(nameBox.y + nameBox.height).toBeLessThanOrEqual(descBox.y);
+            expect(descBox.y + descBox.height).toBeLessThanOrEqual(priceBox.y);
+        });
     });
 
 });
