@@ -160,12 +160,8 @@ test.describe("Cart Page Tests", () => {
         // Navigate to Cart Page
         await inventoryPage.navigateToCart();
         // Verify both products are present in the cart
-        await cartPage.verifyProductInCart(product);
-        await cartPage.verifyProductInCart(product_2);
+        await cartPage.verifyCartItems([product, product_2]);
         await inventoryPage.verifyCartCount(2);
-
-
     });
-
 
 });

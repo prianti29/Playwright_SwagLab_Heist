@@ -11,6 +11,12 @@ class CartPage {
     async verifyProductInCart(productName) {
         const product = this.cartItem.filter({ hasText: productName });
         await expect(product).toBeVisible();
+        // await expect(product.locator('.inventory_item_name')).toHaveText(productName);
+    }
+
+    async verifyCartItems(productNames) {
+        const items = this.cartItem.locator('.inventory_item_name');
+        await expect(items).toHaveText(productNames);
     }
 
     async verifyRemoveButton(productName) {
