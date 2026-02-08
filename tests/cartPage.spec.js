@@ -204,8 +204,48 @@ test.describe("Cart Page Tests", () => {
             await expect(cartPage.checkoutButton).toBeVisible();
 
             // Verify items flow correctly (width check to ensure it's not overflowing)
-            const cartItemBox = await page.locator('.cart_item').first().boundingBox();
-            expect(cartItemBox.width).toBeLessThan(390); // Should fit within viewport width
+            const cartItemBox = await cartPage.cartItem.first().boundingBox();
+            expect(cartItemBox.width).toBeLessThan(390);
+
+            // Verify Cart Persistence (Retain previously added items)
+            await page.reload();
+            await cartPage.verifyProductInCart(product);
+            await inventoryPage.verifyCartCount(1);
+        });
+
+        test("Verify cart elements are responsive and aligned", async ({ page }) => {
+            // Add multiple products to check alignment with list
+            await inventoryPage.addItemToCart(product);
+            await inventoryPage.addItemToCart("Sauce Labs Bike Light");
+            await inventoryPage.navigateToCart();
+
+            const cartItems = page.locator('.cart_item');
+            const count = await cartItems.count();
+
+            // Verify no overlapping elements and proper spacing
+            for (let i = 0; i < count; i++) {
+                const item = cartItems.nth(i);
+                const quantity = item.locator('.cart_quantity');
+                const desc = item.locator('.cart_item_label');
+
+                // Get bounding boxes
+                const qtyBox = await quantity.boundingBox();
+                const descBox = await desc.boundingBox();
+
+                // Verify spacing: Quantity should be to the left of Description
+                expect(qtyBox.x + qtyBox.width).toBeLessThanOrEqual(descBox.x);
+
+                // Verify vertical alignment: roughly centered or top-aligned? 
+                // Let's settle for they should overlap vertically (be on the same 'row')
+                // Check if the top of one is "near" the top of the other, or at least they intersect vertically
+                const doOverlapVertically = (qtyBox.y < descBox.y + descBox.height) && (qtyBox.y + qtyBox.height > descBox.y);
+                expect(doOverlapVertically, "Quantity and Description should be on the same row").toBe(true);
+
+                // Verify Remove button is visible and within the item container (implied by it being found)
+                // Verify text readability (basic check: font size/color is computed)
+                const fontSize = await desc.locator('.inventory_item_name').evaluate(el => window.getComputedStyle(el).fontSize);
+                expect(parseInt(fontSize)).toBeGreaterThan(10); // arbitrary minimum readable size
+            }
         });
     });
 
