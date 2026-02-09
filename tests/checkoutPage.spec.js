@@ -126,8 +126,9 @@ test.describe("Checkout Page Tests", () => {
           // Validation: Only selected items should be displayed correctly [no, name, price]
           await checkoutOverviewPage.verifyNoOfItems(1);
           await checkoutOverviewPage.verifyProductInOverview(product, "$29.99");
-          await checkoutOverviewPage.verifyTotalPrice("Item total: $29.99");
+          await checkoutOverviewPage.verifySubtotal("29.99");
      });
+
 
      test("verify that shipment serial number change when make a second order compared to the previous one", async ({ page }) => {
           // --- Order 1 ---
@@ -193,6 +194,40 @@ test.describe("Checkout Page Tests", () => {
           // This will likely fail to match the specific selected method as the system hardcodes it
           await checkoutOverviewPage.verifyPaymentMethod(paymentMethod);
      });
+
+     test("Verify total price calculation [Subtotal + Tax = Total] for multiple items", async ({ page }) => {
+          const products = ["Sauce Labs Backpack", "Sauce Labs Bike Light"];
+
+          for (const p of products) {
+               await inventoryPage.addItemToCart(p);
+          }
+          await inventoryPage.navigateToCart();
+          await cartPage.checkout();
+          await checkoutPage.fillInformation('John', 'Doe', '12345');
+          await checkoutPage.continue();
+
+          // Prices: Backpack ($29.99) + Bike Light ($9.99) = $39.98
+          // Tax: 8% of 39.98 = $3.20
+          // Total: 39.98 + 3.20 = $43.18
+          await checkoutOverviewPage.verifyNoOfItems(2);
+          await checkoutOverviewPage.verifySubtotal("39.98");
+          await checkoutOverviewPage.verifyTax("3.20");
+          await checkoutOverviewPage.verifyTotal("43.18");
+     });
+
+     test("verify cancel button functionality in checkout overview page [clickable, redirection]", async ({ page }) => {
+          await inventoryPage.addItemToCart(product);
+          await inventoryPage.navigateToCart();
+          await cartPage.checkout();
+          await checkoutPage.fillInformation('John', 'Doe', '12345');
+          await checkoutPage.continue();
+          await expect(page).toHaveURL("https://www.saucedemo.com/checkout-step-two.html");
+
+          await checkoutOverviewPage.cancel();
+          await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html");
+     });
 });
+
+
 
 

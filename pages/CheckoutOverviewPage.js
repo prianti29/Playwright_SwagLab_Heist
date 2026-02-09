@@ -42,9 +42,16 @@ class CheckoutOverviewPage {
           await expect(this.cartItem).toHaveCount(count);
      }
 
-     async verifyTotalPrice(expectedSubtotal) {
-          // This verifies the subtotal matches (Item total: $...)
-          await expect(this.subtotalLabel).toContainText(expectedSubtotal);
+     async verifySubtotal(expectedSubtotal) {
+          await expect(this.subtotalLabel).toContainText(`Item total: $${expectedSubtotal}`);
+     }
+
+     async verifyTax(expectedTax) {
+          await expect(this.taxLabel).toContainText(`Tax: $${expectedTax}`);
+     }
+
+     async verifyTotal(expectedTotal) {
+          await expect(this.totalLabel).toContainText(`Total: $${expectedTotal}`);
      }
 
      async finish() {
