@@ -226,7 +226,74 @@ test.describe("Checkout Page Tests", () => {
           await checkoutOverviewPage.cancel();
           await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html");
      });
+
+     test("verify finish button functionality in checkout overview page [clickable, redirection]", async ({ page }) => {
+          await inventoryPage.addItemToCart(product);
+          await inventoryPage.navigateToCart();
+          await cartPage.checkout();
+          await checkoutPage.fillInformation('John', 'Doe', '12345');
+          await checkoutPage.continue();
+          await expect(page).toHaveURL("https://www.saucedemo.com/checkout-step-two.html");
+
+          await checkoutOverviewPage.finish();
+          await expect(page).toHaveURL("https://www.saucedemo.com/checkout-complete.html");
+          await checkoutCompletePage.verifyComplete();
+     });
+
+     test("verify success message in checkout complete page", async ({ page }) => {
+          await inventoryPage.addItemToCart(product);
+          await inventoryPage.navigateToCart();
+          await cartPage.checkout();
+          await checkoutPage.fillInformation('John', 'Doe', '12345');
+          await checkoutPage.continue();
+          await checkoutOverviewPage.finish();
+
+          await expect(page).toHaveURL("https://www.saucedemo.com/checkout-complete.html");
+          await checkoutCompletePage.verifyComplete();
+     });
+
+     test("verify backhome button functionality in checkout complete page [clickable, redirection]", async ({ page }) => {
+          await inventoryPage.addItemToCart(product);
+          await inventoryPage.navigateToCart();
+          await cartPage.checkout();
+          await checkoutPage.fillInformation('John', 'Doe', '12345');
+          await checkoutPage.continue();
+          await checkoutOverviewPage.finish();
+
+          await expect(page).toHaveURL("https://www.saucedemo.com/checkout-complete.html");
+          await checkoutCompletePage.backHome();
+          await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html");
+     });
+
+     test("Verify user cannot proceed to final checkout without adding an item [Empty Cart Validation]", async ({ page }) => {
+          // Navigate to Cart without adding any items
+          await inventoryPage.navigateToCart();
+          await expect(page).toHaveURL("https://www.saucedemo.com/cart.html");
+
+          // Expected: Checkout button should be disabled or an error should be shown
+          // Actual: It is enabled and allows proceeding
+          await cartPage.checkout();
+
+          // If the system allows proceeding, we'll reach step-one
+          await expect(page, "Should not be allowed to proceed to information step with empty cart").not.toHaveURL("https://www.saucedemo.com/checkout-step-one.html");
+
+          // Alternatively, if we fill info and reach overview:
+          await checkoutPage.fillInformation('John', 'Doe', '12345');
+          await checkoutPage.continue();
+
+          await expect(page, "Should not be allowed to reach overview with empty cart").not.toHaveURL("https://www.saucedemo.com/checkout-step-two.html");
+
+          // Verify that finish button is not functional or items are required
+          await checkoutOverviewPage.finish();
+
+          // Expected: Should not reach completion page
+          await expect(page, "Order should not be completed with empty cart").not.toHaveURL("https://www.saucedemo.com/checkout-complete.html");
+     });
 });
+
+
+
+
 
 
 
