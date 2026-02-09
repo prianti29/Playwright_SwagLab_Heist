@@ -88,17 +88,12 @@ test.describe("Cart Page Tests", () => {
 
     test("Verify that the cart badge count updates correctly", async ({ page }) => {
         let product_2 = "Sauce Labs Bike Light";
-        // Add product to cart
         await inventoryPage.addItemToCart(product);
-        // Verify button changes to Remove
         await inventoryPage.verifyRemoveButton(product);
-        // Verify cart badge updates
         await inventoryPage.verifyCartCount(1);
-        // Navigate to Cart Page
         await inventoryPage.navigateToCart();
-        // Verify Cart page displays the added product
         await cartPage.verifyProductInCart(product);
-        // Continue shopping
+
         await cartPage.continueShopping();
         // Verify that the user is redirected to the inventory page
         await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html");
@@ -114,42 +109,27 @@ test.describe("Cart Page Tests", () => {
 
     test("Verify the behavior when the cart is empty", async ({ page }) => {
         test.fail(true, "Cart should display a message like 'Your cart is empty' but it does not.");
-        // Add product to cart
         await inventoryPage.addItemToCart(product);
-        // Verify button changes to Remove
         await inventoryPage.verifyRemoveButton(product);
-        // Verify cart badge updates
         await inventoryPage.verifyCartCount(1);
         // Navigate to Cart Page
         await inventoryPage.navigateToCart();
         await cartPage.removeItemFromCart(product);
-
-        // Verify product is removed from cart list
         await cartPage.verifyProductRemoved(product);
-
-        // Verify cart badge updates to 0 (hidden)
         await inventoryPage.verifyCartCount(0);
-
         // Verify we are still on the cart page
         await expect(page).toHaveURL("https://www.saucedemo.com/cart.html");
-
         // Verify "Your cart is empty" message appears
         await expect(page.locator('body')).toHaveText(/Your cart is empty/);
     });
 
     test("Verify that a user can add multiple items to the cart", async ({ page }) => {
         let product_2 = "Sauce Labs Bike Light";
-        // Add product to cart
         await inventoryPage.addItemToCart(product);
-        // Verify button changes to Remove
         await inventoryPage.verifyRemoveButton(product);
-        // Verify cart badge updates
         await inventoryPage.verifyCartCount(1);
-        // Navigate to Cart Page
         await inventoryPage.navigateToCart();
-        // Verify Cart page displays the added product
         await cartPage.verifyProductInCart(product);
-        // Continue shopping
         await cartPage.continueShopping();
         // Verify that the user is redirected to the inventory page
         await expect(page).toHaveURL("https://www.saucedemo.com/inventory.html");
@@ -165,16 +145,12 @@ test.describe("Cart Page Tests", () => {
     });
 
     test("Verify system behavior when adding the same item more than one", async ({ page }) => {
-        // Add product to cart
         await inventoryPage.addItemToCart(product);
-
-        // Navigate to Cart Page
         await inventoryPage.navigateToCart();
 
         // Verify that the user CAN increment the product quantity (Expected Behavior)
         // This assertion will fail because the feature doesn't exist yet, highlighting the gap.
         await cartPage.verifyItemQuantityIsEditable(product);
-
         // If the above passed (e.g. if we implemented it), we would then try:
         // await cartPage.incrementQuantity(product);
         // await cartPage.verifyProductQuantity(product, 2);
@@ -187,17 +163,9 @@ test.describe("Cart Page Tests", () => {
         test("Verify cart functionality on mobile devices", async ({ page }) => {
             // Verify layout is responsive - Hamburger menu should be visible (it is on desktop too, but critical here)
             await expect(inventoryPage.menuButton).toBeVisible();
-
-            // Add product to cart
             await inventoryPage.addItemToCart(product);
-
-            // Verify cart badge updates
             await inventoryPage.verifyCartCount(1);
-
-            // Navigate to Cart Page
             await inventoryPage.navigateToCart();
-
-            // Verify Cart page displays the added product
             await cartPage.verifyProductInCart(product);
 
             // Verify layout efficiency: ensure checkout button is visible without scrolling (simple check)
