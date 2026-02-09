@@ -19,12 +19,16 @@ Playwright_SwagLab_Heist/
 ├── pages/                # Page Object Model classes
 │   ├── LoginPage.js      # Auth-related actions & locators
 │   ├── InventoryPage.js  # Product & Navigation actions
-│   └── CartPage.js       # Cart verification & interaction actions
+│   ├── CartPage.js       # Cart verification & interaction actions
+│   ├── CheckoutPage.js   # Checkout: Your Information actions
+│   ├── CheckoutOverviewPage.js # Checkout: Overview actions
+│   └── CheckoutCompletePage.js # Checkout: Complete actions
 ├── snapshots/            # Baseline images for Visual Regression
 ├── tests/                # E2E Test Scripts
 │   ├── login.spec.js     # Comprehensive login & auth tests
 │   ├── homePage.spec.js  # Product inventory & UI audit tests
-│   └── cartPage.spec.js  # Cart management & checkout flow tests
+│   ├── cartPage.spec.js  # Cart management tests
+│   └── checkoutPage.spec.js # Multi-step checkout flow & edge case tests
 ├── playwright.config.js  # Global Playwright settings & timeouts
 ├── package.json          # Project dependencies & scripts
 └── README.md             # Project documentation
@@ -86,9 +90,21 @@ The suite currently implements test cases covering:
   - `visual_user`: Uses visual regression to detect UI distortions.
 - **Cart & Checkout Flows**:
   - **Add/Remove Items**: Verifies cart badge updates and button state changes.
-  - **Cart Persistence**: Checks that items remain in cart after navigation.
-  - **Checkout Process**: Validates the flow from cart to checkout completion.
-  - **Continue Shopping**: Ensures users can return to inventory from the cart.
+  - **Checkout Flow**: 
+    - **Edge Cases**: Validates name/postal code inputs for length, special characters, and formatting.
+    - **Uniqueness**: Asserts that shipment serial numbers should be unique per order.
+    - **Visibility**: Verifies delivery address and payment method functionality.
+    - **Calculations**: Rigorous verification of Subtotal + Tax = Total logic for multiple items.
+    - **Redirection**: Validates Cancel/Finish/BackHome button behavior across all checkout steps.
+    - **Validations**: Asserts that the system should prevent checkout with an empty cart.
+
+## Bug Documentation (Intentionally failing tests)
+
+Some tests in this suite are designed to **fail** to document existing system bugs and regressions:
+- **Empty Cart Validation**: Currently allows purchase with 0 items.
+- **Shipment Uniqueness**: Currently provides the same serial number for all orders.
+- **Missing Fields**: Identifies missing "Delivery Address" and "Payment Method" inputs during checkout.
+- **Edge Case Inputs**: Documents the lack of validation for special characters or excessively long strings.
 
 ##  Troubleshooting
 
