@@ -22,13 +22,15 @@ Playwright_SwagLab_Heist/
 │   ├── CartPage.js       # Cart verification & interaction actions
 │   ├── CheckoutPage.js   # Checkout: Your Information actions
 │   ├── CheckoutOverviewPage.js # Checkout: Overview actions
-│   └── CheckoutCompletePage.js # Checkout: Complete actions
+│   ├── CheckoutCompletePage.js # Checkout: Complete actions
+│   └── FooterPage.js         # Footer & Social Media actions
 ├── snapshots/            # Baseline images for Visual Regression
 ├── tests/                # E2E Test Scripts
 │   ├── login.spec.js     # Comprehensive login & auth tests
 │   ├── homePage.spec.js  # Product inventory & UI audit tests
 │   ├── cartPage.spec.js  # Cart management tests
-│   └── checkoutPage.spec.js # Multi-step checkout flow & edge case tests
+│   ├── checkoutPage.spec.js # Multi-step checkout flow & edge case tests
+│   └── footerPage.spec.js # Social media and footer consistency tests
 ├── playwright.config.js  # Global Playwright settings & timeouts
 ├── package.json          # Project dependencies & scripts
 └── README.md             # Project documentation
@@ -70,6 +72,7 @@ Execution commands are managed via `npm` scripts:
 | `npm run test:ui` | Open Playwright UI Mode for interactive debugging. |
 | `npm run test:debug` | Launch tests in Playwright Inspector for step-by-step debugging. |
 | `npm run report` | View the last generated HTML test report. |
+| `npx playwright test tests/footerPage.spec.js` | Run only the footer specific tests. |
 
 > **Note**: For Visual Regression tests, use `npx playwright test --update-snapshots` if you need to update the baseline images.
 
@@ -97,6 +100,11 @@ The suite currently implements test cases covering:
     - **Calculations**: Rigorous verification of Subtotal + Tax = Total logic for multiple items.
     - **Redirection**: Validates Cancel/Finish/BackHome button behavior across all checkout steps.
     - **Validations**: Asserts that the system should prevent checkout with an empty cart.
+- **Footer & Social Audits (TC-FP-001 to TC-FP-004)**:
+  - **Social Redirections**: Verifies Twitter, Facebook, and LinkedIn links open the correct official pages in new tabs.
+  - **Copyright Validation**: Dynamically verifies the copyright year is current.
+  - **Consistency Check**: Ensures the footer is visible and identical across all major application pages.
+  - **Interactive Elements**: Audits "Terms of Service" and "Privacy Policy" for functional clickability (Documents current static text bug).
 
 ## Bug Documentation (Intentionally failing tests)
 
