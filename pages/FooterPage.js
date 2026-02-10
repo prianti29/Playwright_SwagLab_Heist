@@ -3,10 +3,19 @@ const { expect } = require('@playwright/test');
 class FooterPage {
      constructor(page) {
           this.page = page;
+          this.footerContainer = page.locator('footer.footer');
           this.twitterIcon = page.locator('.social_twitter a');
           this.facebookIcon = page.locator('.social_facebook a');
           this.linkedinIcon = page.locator('.social_linkedin a');
           this.copyrightText = page.locator('.footer_copy');
+     }
+
+     async verifyFooterPresence() {
+          await expect(this.footerContainer).toBeVisible();
+          await expect(this.twitterIcon).toBeVisible();
+          await expect(this.facebookIcon).toBeVisible();
+          await expect(this.linkedinIcon).toBeVisible();
+          await expect(this.copyrightText).toBeVisible();
      }
 
      /**
@@ -38,6 +47,28 @@ class FooterPage {
 
      async verifyLinkedInRedirection() {
           await this.verifySocialRedirection(this.linkedinIcon, /.*linkedin\.com\/company\/sauce-labs.*/);
+     }
+
+     async verifyCopyrightYear() {
+          const currentYear = new Date().getFullYear();
+          await expect(this.copyrightText).toContainText(currentYear.toString());
+     }
+
+     async verifyTermsAndPrivacyLinks() {
+          const tosLink = this.page.getByText('Terms of Service');
+          const privacyLink = this.page.getByText('Privacy Policy');
+
+          // Verify they are visible
+          await expect(tosLink).toBeVisible();
+          await expect(privacyLink).toBeVisible();
+
+          // Verify they are "clickable" by checking if they have the pointer cursor
+          // Static text usually has 'default' or 'auto' cursor.
+          const tosCursor = await tosLink.evaluate(el => window.getComputedStyle(el).cursor);
+          const privacyCursor = await privacyLink.evaluate(el => window.getComputedStyle(el).cursor);
+
+          expect(tosCursor, "Terms of Service should have a pointer cursor").toBe('pointer');
+          expect(privacyCursor, "Privacy Policy should have a pointer cursor").toBe('pointer');
      }
 }
 
